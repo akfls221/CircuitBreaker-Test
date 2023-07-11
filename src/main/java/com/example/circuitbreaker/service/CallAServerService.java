@@ -1,39 +1,38 @@
 package com.example.circuitbreaker.service;
 
+import com.example.circuitbreaker.client.CallSomeApiClient;
 import com.example.circuitbreaker.fault_tolerance.BetweenAandBCircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+
+import java.util.function.Supplier;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class CallAServerService {
-
-    private static final String A_SERVER_URL = "http://localhost:9090/execute";
-//    private static final String A_SERVER_URL = "www.naver.com";
-    private static final String B_SERVER_URL = "localhost:9091/execute";
-    private final RestTemplate restTemplate;
+    private final CallSomeApiClient apiClient;
     private final BetweenAandBCircuitBreaker betweenAandBCircuitBreaker;
 
     public void callAServer() {
         CircuitBreaker circuitBreaker = betweenAandBCircuitBreaker.addCircuitBreaker("callA");
 
         try {
-            circuitBreaker.executeSupplier(() -> restTemplate.getForObject(A_SERVER_URL, String.class));
+            Supplier<String> decorateSupplier = CircuitBreaker.decorateSupplier(circuitBreaker, apiClient::callAServerApi);
+            String apiResponse = Try.ofSupplier(decorateSupplier).recover(throwable -> callA_1Server()).get();
+            log.info("api result : {}", apiResponse);
         } catch (CallNotPermittedException e) {
-            log.warn("service is block because circuitBreaker state is OPEN");
+            log.warn("service is block because circuitBreaker block this request");
         } catch (Exception e) {
-            log.error("ERROR!!!");
+            log.error("UnKnown Exception occur", e);
         }
     }
 
-//    public void callBServer() {
-//        restTemplate.getForObject();
-//    }
-
-
+    private String callA_1Server() {
+        return "fallback method running";
+    }
 }
