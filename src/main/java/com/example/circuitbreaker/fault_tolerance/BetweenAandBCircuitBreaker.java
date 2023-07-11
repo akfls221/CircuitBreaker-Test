@@ -38,8 +38,4 @@ public class BetweenAandBCircuitBreaker {
                     log.info("CircuitBreaker {} added", addedEntry.getName());
                 });
     }
-
-
-
-
 }
