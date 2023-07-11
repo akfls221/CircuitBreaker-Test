@@ -27,6 +27,9 @@ dependencies {
 	//circuitBreaker
 	implementation "io.github.resilience4j:resilience4j-circuitbreaker:${resilience4jVersion}"
 
+	//Vavr
+	implementation 'io.vavr:vavr:0.10.4'
+
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
