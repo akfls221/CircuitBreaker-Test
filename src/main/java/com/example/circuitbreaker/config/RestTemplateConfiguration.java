@@ -1,4 +1,4 @@
-package com.example.circuitbreaker.api;
+package com.example.circuitbreaker.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
