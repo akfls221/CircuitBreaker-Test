@@ -18,18 +18,22 @@ public class CallAServerService {
     private final CallSomeApiClient apiClient;
     private final BetweenAandBCircuitBreaker betweenAandBCircuitBreaker;
 
-    public void callAServer() {
+    public String callAServer() {
         CircuitBreaker circuitBreaker = betweenAandBCircuitBreaker.addCircuitBreaker("callA");
 
+        String apiResponse = null;
         try {
             Supplier<String> decorateSupplier = CircuitBreaker.decorateSupplier(circuitBreaker, apiClient::callAServerApi);
-            String apiResponse = Try.ofSupplier(decorateSupplier).recover(throwable -> callA_1Server()).get();
+            apiResponse = Try.ofSupplier(decorateSupplier).recover(throwable -> callA_1Server()).get();
             log.info("api result : {}", apiResponse);
+
+            return apiResponse;
         } catch (CallNotPermittedException e) {
             log.warn("service is block because circuitBreaker block this request");
         } catch (Exception e) {
             log.error("UnKnown Exception occur", e);
         }
+        return apiResponse;
     }
 
     private String callA_1Server() {
