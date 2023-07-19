@@ -88,13 +88,14 @@ class CallAServerServiceTest {
             when(callSomeApiClientMock.callAServerApi()).thenAnswer(throwExceptionAnswer);
 
             // When
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 10; i++) {
                 callAServerService.callAServer();
             }
 
             // Then
             assertThat(circuitBreakerMock.getName()).isEqualTo("testCircuitBreaker");
             assertThat(circuitBreakerMock.getMetrics().getNumberOfFailedCalls()).isEqualTo(3);
+            assertThat(circuitBreakerMock.getMetrics().getFailureRate()).isEqualTo(30.0F);
             assertThat(circuitBreakerMock.getState()).isEqualTo(CircuitBreaker.State.CLOSED);
             assertThat(callAServerService.callAServer()).isEqualTo("success");
         }
@@ -118,6 +119,7 @@ class CallAServerServiceTest {
             // Then
             assertThat(circuitBreakerMock.getName()).isEqualTo("testCircuitBreaker");
             assertThat(circuitBreakerMock.getMetrics().getNumberOfFailedCalls()).isEqualTo(10);
+            assertThat(circuitBreakerMock.getMetrics().getFailureRate()).isEqualTo(100.0F);
             assertThat(circuitBreakerMock.getState()).isEqualTo(CircuitBreaker.State.OPEN);
             assertThat(callAServerService.callAServer()).isEqualTo("fallback method running");
         }
@@ -149,6 +151,7 @@ class CallAServerServiceTest {
             // Then
             assertThat(circuitBreakerMock.getName()).isEqualTo("testCircuitBreaker");
             assertThat(circuitBreakerMock.getMetrics().getNumberOfFailedCalls()).isEqualTo(4);
+            assertThat(circuitBreakerMock.getMetrics().getFailureRate()).isEqualTo(40.0F);
             assertThat(circuitBreakerMock.getState()).isEqualTo(CircuitBreaker.State.OPEN);
             assertThat(callAServerService.callAServer()).isEqualTo("fallback method running");
         }
@@ -219,9 +222,11 @@ class CallAServerServiceTest {
                     Thread.sleep(1000);
                 }
             }
+
             // Then
             assertThat(circuitBreakerMock.getName()).isEqualTo("testCircuitBreaker");
             assertThat(circuitBreakerMock.getMetrics().getNumberOfFailedCalls()).isEqualTo(3);
+            assertThat(circuitBreakerMock.getMetrics().getFailureRate()).isEqualTo(100.0F);
             assertThat(circuitBreakerMock.getState()).isEqualTo(CircuitBreaker.State.OPEN);
         }
 
