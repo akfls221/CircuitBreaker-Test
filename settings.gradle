@@ -1,1 +1,4 @@
 rootProject.name = 'circuitbreaker'
+include 'a-server'
+include 'our-server'
+
